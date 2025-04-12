@@ -51,49 +51,17 @@
       z-index: 10;
     }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
+    #themeIcon {
+      background: none;
+      border: none;
+      font-size: 26px;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 34px;
+      color: var(--accent);
+      transition: transform 0.3s ease;
     }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      border-radius: 50%;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: 0.4s;
-    }
-
-    input:checked+.slider {
-      background-color: var(--accent);
-    }
-
-    input:checked+.slider:before {
-      transform: translateX(26px);
+    #themeIcon:hover {
+      transform: rotate(20deg);
     }
 
     canvas {
@@ -116,7 +84,6 @@
       box-sizing: border-box;
       border: 1px solid #ccc;
       display: none;
-      /* Hide initially */
     }
 
     .main-countdown {
@@ -218,46 +185,33 @@
       background: #0097a7;
     }
 
-    /* Adjustments for small screens */
-    @media (max-width: 768px) {
-      .toggle-wrapper {
-        top: 10px;
-        right: 10px;
-      }
+    .animate-pop {
+      animation: pop 0.4s ease;
     }
 
-    .funny-message {
-      margin-top: 30px;
-      font-size: 1.2em;
-      color: var(--subtext);
-      text-align: center;
-      font-weight: bold;
-    }
+   
+    
   </style>
 </head>
 
 <body>
 
-  <!-- Introductory screen -->
   <div class="intro-screen">
     <h1>Welcome to the Countdown</h1>
     <button class="intro-button" onclick="enterTimer()">Enter Timer</button>
   </div>
 
-  <!-- Theme Toggle Switch -->
+  <!-- Theme Toggle -->
   <div class="toggle-wrapper">
-    <label class="switch">
-      <input type="checkbox" id="themeSwitch" onclick="toggleTheme()">
-      <span class="slider"></span>
-    </label>
+    <button id="themeIcon" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
   </div>
 
   <canvas id="fireworks"></canvas>
-  <audio id="fireworkSound" src="firework.mp3" preload="auto"></audio>
+  <audio id="fireworkSound" src="fireworkX.mp3" preload="auto"></audio>
 
   <div class="dashboard">
     <div class="main-countdown">
-      <h1>🎯 Project Completion In</h1>
+      <h1>Project Completion In</h1>
       <div class="badge" id="projectCountdown">Loading...</div>
       <div class="end-date" id="projectEndDate"></div>
     </div>
@@ -281,20 +235,17 @@
         </div>
       </div>
     </div>
-    <!-- Funny Message with a clickable link -->
+
     <div class="footer">
-      Want to see fireworks at the end? 🎆 Support us to keep going! 😉 <a href="https://pwckudos.achievers.com/profile"
-        target="_blank" style="color: var(--accent); text-decoration: none;">PwC Kudos</a>
+      Want to see fireworks at the end? 🎆 Support us to keep going! 😉
+      <a href="https://pwckudos.achievers.com/profile" target="_blank"
+        style="color: var(--accent); text-decoration: none;">PwC Kudos</a><br />
+      © 2025 Oweida Corp. All rights reserved.
     </div>
-    <div class="footer">© 2025 Oweida Corp. All rights reserved.</div>
-
   </div>
-
-
 
   <script>
     const dates = {
-      // project: new Date(new Date().getTime() + 5 * 1000), // 30 seconds from now
       project: new Date("2025-06-16T17:00:00"),
       abeer: new Date("2025-04-17T17:00:00"),
       loay: new Date("2025-04-29T17:00:00"),
@@ -312,6 +263,15 @@
       }).catch(() => console.warn("Sound unlock failed."));
     }, { once: true });
 
+    function animateValue(element, newValue) {
+      if (element.innerText !== newValue) {
+        element.innerText = newValue;
+        element.classList.remove("animate-pop");
+        void element.offsetWidth;
+        element.classList.add("animate-pop");
+      }
+    }
+
     function updateCountdowns() {
       const now = new Date();
       for (const [key, target] of Object.entries(dates)) {
@@ -321,7 +281,7 @@
 
         const distance = target - now;
         if (distance <= 0) {
-          badge.innerText = "🎉 Done!";
+          animateValue(badge, "🎉 Done!");
           endText.innerText = `Ended on: ${target.toLocaleString()}`;
           if (key === "project" && !fireworksStarted) {
             launchFireworks();
@@ -334,8 +294,9 @@
         const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((distance / (1000 * 60)) % 60);
         const seconds = Math.floor((distance / 1000) % 60);
+        const newValue = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-        badge.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        animateValue(badge, newValue);
         endText.innerText = `Ends on: ${target.toLocaleString(undefined, {
           month: "long",
           day: "numeric",
@@ -424,14 +385,9 @@
     }
 
     function toggleTheme() {
-      const isChecked = document.getElementById('themeSwitch').checked;
-      if (isChecked) {
-        document.body.classList.add('light-mode');
-        localStorage.setItem('theme', 'light');
-      } else {
-        document.body.classList.remove('light-mode');
-        localStorage.setItem('theme', 'dark');
-      }
+      const isLight = document.body.classList.toggle("light-mode");
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+      document.getElementById("themeIcon").innerText = isLight ? "☀️" : "🌙";
     }
 
     function enterTimer() {
@@ -441,12 +397,16 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       const savedTheme = localStorage.getItem("theme") || "dark";
+      const icon = document.getElementById("themeIcon");
       if (savedTheme === "light") {
         document.body.classList.add("light-mode");
-        document.getElementById('themeSwitch').checked = true;
+        icon.innerText = "☀️";
+      } else {
+        icon.innerText = "🌙";
       }
     });
   </script>
+
 </body>
 
 </html>
