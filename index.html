@@ -42,7 +42,6 @@
       transition: background 0.3s ease, color 0.3s ease;
       flex-direction: column;
       position: relative;
-      /* Added to ensure positioning is relative to the body */
     }
 
     .toggle-wrapper {
@@ -226,6 +225,14 @@
         right: 10px;
       }
     }
+
+    .funny-message {
+      margin-top: 30px;
+      font-size: 1.2em;
+      color: var(--subtext);
+      text-align: center;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -274,13 +281,20 @@
         </div>
       </div>
     </div>
-
+    <!-- Funny Message with a clickable link -->
+    <div class="footer">
+      Want to see fireworks at the end? 🎆 Support us to keep going! 😉 <a href="https://pwckudos.achievers.com/profile"
+        target="_blank" style="color: var(--accent); text-decoration: none;">PwC Kudos</a>
+    </div>
     <div class="footer">© 2025 Oweida Corp. All rights reserved.</div>
+
   </div>
+
+
 
   <script>
     const dates = {
-      // project: new Date(new Date().getTime() + 10 * 1000), // 30 seconds from now
+      // project: new Date(new Date().getTime() + 5 * 1000), // 30 seconds from now
       project: new Date("2025-06-16T17:00:00"),
       abeer: new Date("2025-04-17T17:00:00"),
       loay: new Date("2025-04-29T17:00:00"),
