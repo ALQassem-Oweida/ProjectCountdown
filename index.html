@@ -188,9 +188,6 @@
     .animate-pop {
       animation: pop 0.4s ease;
     }
-
-   
-    
   </style>
 </head>
 
@@ -283,6 +280,9 @@
         if (distance <= 0) {
           animateValue(badge, "🎉 Done!");
           endText.innerText = `Ended on: ${target.toLocaleString()}`;
+
+
+
           if (key === "project" && !fireworksStarted) {
             launchFireworks();
             fireworksStarted = true;
@@ -297,10 +297,14 @@
         const newValue = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
         animateValue(badge, newValue);
-        endText.innerText = `Ends on: ${target.toLocaleString(undefined, {
-          month: "long",
-          day: "numeric",
-        })}`;
+        if (key === "project") {
+          endText.innerText = `Ends on: ${target.toLocaleString(undefined, {
+            month: "long",
+            day: "numeric",
+          })}`;
+        } else {
+          endText.innerText = "";
+        }
       }
     }
 
