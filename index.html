@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dual Countdown Timer</title>
+  <title>Freedom Countdown</title>
   <style>
     body {
       margin: 0;
@@ -42,19 +42,16 @@
       margin-bottom: 10px;
     }
 
-    .dual-badge {
+    .badge {
       background: #0077cc;
       color: white;
-      padding: 16px;
-      font-size: 16px;
-      border-radius: 20px;
+      padding: 12px 25px;
+      font-size: 24px;
+      border-radius: 50px;
+      display: inline-block;
       margin-top: 10px;
       box-shadow: 0 6px 12px rgba(0, 119, 204, 0.3);
       font-weight: bold;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
     }
 
     .events {
@@ -82,15 +79,18 @@
       color: #555;
     }
 
-    .dual-badge-small {
-      background: #e1f0ff;
-      color: #007acc;
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 8px;
-      font-size: 14px;
+    .event-badge {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
       font-weight: bold;
-      text-align: center;
+      background: #e1f0ff;
+      padding: 8px 12px;
+      border-radius: 30px;
+      color: #007acc;
+      white-space: nowrap;
     }
 
     .footer {
@@ -106,30 +106,21 @@
 
   <div class="dashboard">
     <div class="main-countdown">
-      <h1>🎯 Project Completion</h1>
-      <div class="dual-badge">
-        <div id="projectCountdownBiz">Loading...</div>
-        <div id="projectCountdownCal" class="dual-badge-small">Loading...</div>
-      </div>
+      <h1>🎯 Project Completion In</h1>
+      <div class="badge" id="projectCountdown">Loading...</div>
     </div>
 
     <div class="events">
       <div class="event-card">
         <h3>🎉 Abeer's Freedom Countdown</h3>
         <p>Almost there! 😄</p>
-        <div class="dual-badge">
-          <div id="abeerCountdownBiz">Loading...</div>
-          <div id="abeerCountdownCal" class="dual-badge-small">Loading...</div>
-        </div>
+        <div class="event-badge" id="abeerCountdown">Loading...</div>
       </div>
 
       <div class="event-card">
         <h3>👋 Loay’s Farewell Countdown</h3>
         <p>U will be missed 🕊️</p>
-        <div class="dual-badge">
-          <div id="loayCountdownBiz">Loading...</div>
-          <div id="loayCountdownCal" class="dual-badge-small">Loading...</div>
-        </div>
+        <div class="event-badge" id="loayCountdown">Loading...</div>
       </div>
     </div>
 
@@ -138,9 +129,10 @@
 
   <script>
     const dates = {
-      project: new Date(new Date().getTime() + 30 * 1000), // 30 seconds for test
-      abeer: new Date("2025-04-17T00:00:00"),
-      loay: new Date("2025-04-29T00:00:00"),
+      // project: new Date(new Date().getTime() + 10 * 1000), // 30 seconds from now
+      project: new Date("2025-06-16T17:00:00"),
+      abeer: new Date("2025-04-17T17:00:00"),
+      loay: new Date("2025-04-29T17:00:00"),
     };
 
     let fireworksStarted = false;
@@ -157,27 +149,15 @@
       return count;
     }
 
-    function formatCountdown(distance) {
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((distance / (1000 * 60)) % 60);
-      const seconds = Math.floor((distance / 1000) % 60);
-      return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-
     function updateCountdowns() {
       const now = new Date();
 
       for (const [key, target] of Object.entries(dates)) {
-        const distance = target - now;
-        const bizDays = countBusinessDays(now, target);
+        const badge = document.getElementById(`${key}Countdown`);
+        if (!badge) continue;
 
-        const bizBadge = document.getElementById(`${key}CountdownBiz`);
-        const calBadge = document.getElementById(`${key}CountdownCal`);
-
-        if (distance <= 0) {
-          if (bizBadge) bizBadge.innerText = "🎉 Done!";
-          if (calBadge) calBadge.innerText = "🎉 Done!";
+        if (now >= target) {
+          badge.innerText = "🎉 Done!";
           if (key === "project" && !fireworksStarted) {
             launchFireworks();
             fireworksStarted = true;
@@ -185,16 +165,19 @@
           continue;
         }
 
-        const formatted = formatCountdown(distance);
-        if (bizBadge) bizBadge.innerText = `${bizDays} workdays\n${formatted}`;
-        if (calBadge) calBadge.innerText = `📆 ${formatted}`;
+        const businessDays = countBusinessDays(now, target);
+        const totalMs = target - now;
+        const hours = Math.floor((totalMs / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((totalMs / (1000 * 60)) % 60);
+        const seconds = Math.floor((totalMs / 1000) % 60);
+        badge.innerText = `${businessDays}d ${hours}h ${minutes}m ${seconds}s`;
       }
     }
 
     setInterval(updateCountdowns, 1000);
     updateCountdowns();
 
-    // 🎆 Fireworks animation
+    // 🎆 Fireworks Effect
     function launchFireworks() {
       const canvas = document.getElementById("fireworks");
       const ctx = canvas.getContext("2d");
@@ -233,7 +216,7 @@
         this.particles.forEach(p => {
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.02;
+          p.vy += 0.02; // gravity
           ctx.beginPath();
           ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
@@ -250,7 +233,7 @@
             x: this.x,
             y: this.y,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
+            vy: Math.sin(angle) * speed, 
             color: this.color
           });
         }
