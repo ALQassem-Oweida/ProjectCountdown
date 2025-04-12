@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Freedom Countdown</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #e6dfd7, #cfd9e2);
+      overflow: hidden;
+      color: #222;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .dashboard {
+      position: relative;
+      z-index: 1;
+      background: white;
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+      width: 95%;
+      max-width: 480px;
+      margin: 50px auto;
+    }
+
+    .main-countdown {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .main-countdown h1 {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      background: #0077cc;
+      color: white;
+      padding: 12px 25px;
+      font-size: 24px;
+      border-radius: 50px;
+      display: inline-block;
+      margin-top: 10px;
+      box-shadow: 0 6px 12px rgba(0, 119, 204, 0.3);
+      font-weight: bold;
+    }
+
+    .events {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .event-card {
+      background: #f7f9fb;
+      border-left: 6px solid #444;
+      padding: 16px 20px;
+      border-radius: 15px;
+      position: relative;
+    }
+
+    .event-card h3 {
+      margin: 0;
+      font-size: 1.1em;
+    }
+
+    .event-card p {
+      margin: 6px 0 0;
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    .event-badge {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      font-weight: bold;
+      background: #e1f0ff;
+      padding: 8px 12px;
+      border-radius: 30px;
+      color: #007acc;
+      white-space: nowrap;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+
+  <div class="dashboard">
+    <div class="main-countdown">
+      <h1>🎯 Project Completion In</h1>
+      <div class="badge" id="projectCountdown">Loading...</div>
+    </div>
+
+    <div class="events">
+      <div class="event-card">
+        <h3>🎉 Abeer's Freedom Countdown</h3>
+        <p>Almost there! 😄</p>
+        <div class="event-badge" id="abeerCountdown">Loading...</div>
+      </div>
+
+      <div class="event-card">
+        <h3>👋 Loay’s Farewell Countdown</h3>
+        <p>U will be missed 🕊️</p>
+        <div class="event-badge" id="loayCountdown">Loading...</div>
+      </div>
+    </div>
+
+    <div class="footer">© 2025 Oweida Corp. All rights reserved.</div>
+  </div>
+
+  <script>
+    const dates = {
+      // project: new Date(new Date().getTime() + 10 * 1000), // 30 seconds from now
+      project: new Date("2025-06-16T17:00:00"),
+      abeer: new Date("2025-04-17T17:00:00"),
+      loay: new Date("2025-04-29T17:00:00"),
+    };
+
+    let fireworksStarted = false;
+
+    function countBusinessDays(startDate, endDate) {
+      let count = 0;
+      const current = new Date(startDate);
+      current.setHours(0, 0, 0, 0);
+      while (current < endDate) {
+        const day = current.getDay();
+        if (day !== 0 && day !== 6) count++;
+        current.setDate(current.getDate() + 1);
+      }
+      return count;
+    }
+
+    function updateCountdowns() {
+      const now = new Date();
+
+      for (const [key, target] of Object.entries(dates)) {
+        const badge = document.getElementById(`${key}Countdown`);
+        if (!badge) continue;
+
+        if (now >= target) {
+          badge.innerText = "🎉 Done!";
+          if (key === "project" && !fireworksStarted) {
+            launchFireworks();
+            fireworksStarted = true;
+          }
+          continue;
+        }
+
+        const businessDays = countBusinessDays(now, target);
+        const totalMs = target - now;
+        const hours = Math.floor((totalMs / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((totalMs / (1000 * 60)) % 60);
+        const seconds = Math.floor((totalMs / 1000) % 60);
+        badge.innerText = `${businessDays}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+    }
+
+    setInterval(updateCountdowns, 1000);
+    updateCountdowns();
+
+    // 🎆 Fireworks Effect
+    function launchFireworks() {
+      const canvas = document.getElementById("fireworks");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const fireworks = [];
+
+      function Firework() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height;
+        this.radius = 2;
+        this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+        this.speedY = Math.random() * 5 + 4;
+        this.exploded = false;
+        this.particles = [];
+      }
+
+      Firework.prototype.update = function () {
+        if (!this.exploded) {
+          this.y -= this.speedY;
+          if (this.speedY <= 0.5 || this.y < canvas.height / 2) {
+            this.explode();
+          }
+        }
+      };
+
+      Firework.prototype.draw = function () {
+        if (!this.exploded) {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+        }
+
+        this.particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.02; // gravity
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        });
+      };
+
+      Firework.prototype.explode = function () {
+        this.exploded = true;
+        for (let i = 0; i < 30; i++) {
+          const angle = Math.random() * 2 * Math.PI;
+          const speed = Math.random() * 4;
+          this.particles.push({
+            x: this.x,
+            y: this.y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: this.color
+          });
+        }
+      };
+
+      function animate() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (Math.random() < 0.05) fireworks.push(new Firework());
+        fireworks.forEach(f => f.update());
+        fireworks.forEach(f => f.draw());
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+  </script>
+</body>
+</html>
