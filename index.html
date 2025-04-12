@@ -39,12 +39,12 @@
       padding: 20px;
       box-sizing: border-box;
       transition: background 0.3s ease, color 0.3s ease;
+      flex-direction: column;
     }
 
     .toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
+      position: relative;
+      margin-bottom: 20px;
       background: var(--accent);
       color: white;
       border: none;
@@ -53,6 +53,9 @@
       cursor: pointer;
       font-size: 0.9em;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 10;
+      align-self: flex-end;
+      margin-right: 10px;
     }
 
     canvas {
